@@ -1,8 +1,10 @@
-from db import Database
+from db import Database, User
 import random
 import string
 
 db = Database()
-db.add_user(1, 'Барак', 'Обама', 'student', '04/08/1961')
-db.add_group('Враги России', 'IT', 2)
-db.add_u2g(1, 1)
+u1 = User(123, 'Барак', 'Обама', 'student', '04/08/1961')
+g1 = Group()
+db.add_user(u1)
+u1.first_name = 'Ёбаный'
+db.update_user(u1)

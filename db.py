@@ -17,20 +17,46 @@ class Database:
         now = datetime.now()
         return now.strftime("%d/%m/%Y %H:%M:%S")
 
-    def add_user(self, id, first_name, last_name, role, birth_date):
+    def add_user(self, user):
         self.cursor.execute(
             f'''
             INSERT INTO users (id, first_name, last_name, role, birth_date, reg_date)
-            VALUES ({id}, '{first_name}', '{last_name}', '{role}', '{birth_date}', '{self.get_datetime()}')
+            VALUES ({user.uid}, '{user.first_name}', '{user.last_name}', '{user.role}', '{user.birth_date}', '{self.get_datetime()}')
             '''
         )
         self.conn.commit()
 
-    def add_group(self, name, kvantum, level):
+    def update_user(self, user):
         self.cursor.execute(
             f'''
-            INSERT INTO groups (name, kvantum, level, reg_date)
-            VALUES ('{name}', '{kvantum}', '{level}', '{self.get_datetime()}')
+            UPDATE users
+            SET first_name = '{user.first_name}',
+                last_name = '{user.last_name}',
+                role = '{user.role}',
+                birth_date = '{user.birth_date}'
+            WHERE id = {user.uid}
+            '''
+        )
+        self.conn.commit()
+
+    def add_group(self, group):
+        self.cursor.execute(
+            f'''
+            INSERT INTO groups (id, name, kvantum, level, teacher_id, reg_date)
+            VALUES ({group.uid}, '{group.name}', '{group.kvantum}', {group.level}, {group.teacher_id}, '{self.get_datetime()}')
+            '''
+        )
+        self.conn.commit()
+
+    def update_group(self, group):
+        self.cursor.execute(
+            f'''
+            UPDATE users
+            SET name = '{group.name}',
+                kvantum = '{group.kvantum}',
+                level = {group.level},
+                teacher_id = {group.teacher_id}
+            WHERE id = {group.uid}
             '''
         )
         self.conn.commit()
@@ -43,4 +69,21 @@ class Database:
             '''
         )
         self.conn.commit()
-    
+
+
+class User:
+    def __init__(self, uid, first_name, last_name, role, birth_date):
+        self.uid = uid
+        self.first_name = first_name
+        self.last_name = last_name
+        self.role = role
+        self.birth_date = birth_date
+
+
+class Group:
+    def __init__(self, name, kvantum, level, teacher_id):
+        self.uid = -1
+        self.name = name
+        self.kvantum = kvantum
+        self.level = level
+        self.teacher_id = level
