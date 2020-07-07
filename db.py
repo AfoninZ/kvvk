@@ -35,4 +35,12 @@ class Database:
         )
         self.conn.commit()
 
+    def add_u2g(self, user_id, group_id):
+        self.cursor.execute(
+            f'''
+            INSERT INTO relationships (user_id, group_id, join_date)
+            VALUES ({user_id}, {group_id}, '{self.get_datetime()}')
+            '''
+        )
+        self.conn.commit()
     
