@@ -20,7 +20,7 @@ class Database:
     def add_user(self, user):
         self.cursor.execute(
             f'''
-            INSERT INTO users (id, first_name, last_name, role, birth_date, reg_date)
+            INSERT INTO users (uid, first_name, last_name, role, birth_date, reg_date)
             VALUES ({user.uid}, '{user.first_name}', '{user.last_name}', '{user.role}', '{user.birth_date}', '{self.get_datetime()}')
             '''
         )
@@ -34,16 +34,24 @@ class Database:
                 last_name = '{user.last_name}',
                 role = '{user.role}',
                 birth_date = '{user.birth_date}'
-            WHERE id = {user.uid}
+            WHERE uid = {user.uid}
             '''
         )
         self.conn.commit()
 
+    def get_user(self, uid):
+        user_info = self.cursor.execute(
+            f'''
+            SELECT uid, first_name, last_name, role, birth_date FROM users WHERE uid="{uid}"
+            '''
+        ).fetchall()
+        return User(user_info[0][0], user_info[0][1], user_info[0][2], user_info[0][3], user_info[0][4])
+
     def add_group(self, group):
         self.cursor.execute(
             f'''
-            INSERT INTO groups (id, name, kvantum, level, teacher_id, reg_date)
-            VALUES ({group.uid}, '{group.name}', '{group.kvantum}', {group.level}, {group.teacher_id}, '{self.get_datetime()}')
+            INSERT INTO groups (uid, name, kvantum, level, teacher_uid, reg_date)
+            VALUES ({group.uid}, '{group.name}', '{group.kvantum}', {group.level}, {group.teacher_uid}, '{self.get_datetime()}')
             '''
         )
         self.conn.commit()
@@ -55,28 +63,28 @@ class Database:
             SET name = '{group.name}',
                 kvantum = '{group.kvantum}',
                 level = {group.level},
-                teacher_id = {group.teacher_id}
-            WHERE id = {group.uid}
+                teacher_uid = {group.teacher_uid}
+            WHERE uid = {group.uid}
             '''
         )
         self.conn.commit()
 
-    def add_u2g(self, user_id, group_id):
+    def get_group(self, name):
+        group_info = self.cursor.execute(
+            f'''
+            SELECT uid, name, kvantum, level, teacher_uid FROM groups WHERE name="{name}"
+            '''
+        ).fetchall()
+        return Group(group_info[0][1], group_info[0][2], group_info[0][3], group_info[0][4])
+
+    def add_u2g(self, user_uid, group_uid):
         self.cursor.execute(
             f'''
-            INSERT INTO relationships (user_id, group_id, join_date)
-            VALUES ({user_id}, {group_id}, '{self.get_datetime()}')
+            INSERT INTO relationships (user_uid, group_uid, join_date)
+            VALUES ({user_uid}, {group_uid}, '{self.get_datetime()}')
             '''
         )
         self.conn.commit()
-
-    def get_user(self, vk_id):
-        user_info = self.cursor.execute(
-            f'''
-        SELECT id, first_name, last_name, role, birth_date FROM USERS WHERE id="{vk_id}"
-        ''').fetchall()
-        print(user_info)
-        return User(user_info[0][0], user_info[0][1], user_info[0][2], user_info[0][3], user_info[0][4])
 
 
 class User:
@@ -89,13 +97,9 @@ class User:
 
 
 class Group:
-    def __init__(self, name, kvantum, level, teacher_id):
+    def __init__(self, name, kvantum, level, teacher_uid):
         self.uid = -1
         self.name = name
         self.kvantum = kvantum
         self.level = level
-        self.teacher_id = level
-
-
-db = Database()
-print(db.get_user('1'))
+        self.teacher_uid = teacher_uid
