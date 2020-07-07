@@ -70,6 +70,14 @@ class Database:
         )
         self.conn.commit()
 
+    def get_user(self, vk_id):
+        user_info = self.cursor.execute(
+            f'''
+        SELECT id, first_name, last_name, role, birth_date FROM USERS WHERE id="{vk_id}"
+        ''').fetchall()
+        print(user_info)
+        return User(user_info[0][0], user_info[0][1], user_info[0][2], user_info[0][3], user_info[0][4])
+
 
 class User:
     def __init__(self, uid, first_name, last_name, role, birth_date):
@@ -87,3 +95,7 @@ class Group:
         self.kvantum = kvantum
         self.level = level
         self.teacher_id = level
+
+
+db = Database()
+print(db.get_user('1'))
