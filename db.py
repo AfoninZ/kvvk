@@ -21,7 +21,7 @@ class Database:
         self.cursor.execute(
             f'''
             INSERT INTO users (uid, first_name, last_name, role, birth_date, reg_date)
-            VALUES ({user.uid}, '{user.first_name}', '{user.last_name}', '{user.role}', '{user.birth_date}', '{self.get_datetime()}')
+            VALUES ({user.uid}, '{user.first_name}', '{user.last_name}', '{user.role}', '{user.birth_date}', '{self.get_datetime()}, '{user.location}')
             '''
         )
         self.conn.commit()
@@ -33,7 +33,8 @@ class Database:
             SET first_name = '{user.first_name}',
                 last_name = '{user.last_name}',
                 role = '{user.role}',
-                birth_date = '{user.birth_date}'
+                birth_date = '{user.birth_date}', 
+                location = '{user.location}'
             WHERE uid = {user.uid}
             '''
         )
@@ -42,10 +43,10 @@ class Database:
     def get_user(self, uid):
         user_info = self.cursor.execute(
             f'''
-            SELECT uid, first_name, last_name, role, birth_date FROM users WHERE uid="{uid}"
+            SELECT uid, first_name, last_name, role, birth_date, location FROM users WHERE uid="{uid}"
             '''
         ).fetchall()
-        return User(user_info[0][0], user_info[0][1], user_info[0][2], user_info[0][3], user_info[0][4])
+        return User(user_info[0][0], user_info[0][1], user_info[0][2], user_info[0][3], user_info[0][4], user_info[0][5])
 
     def add_group(self, group):
         self.cursor.execute(
@@ -72,7 +73,7 @@ class Database:
     def get_group(self, name):
         group_info = self.cursor.execute(
             f'''
-            SELECT uid, name, kvantum, level, teacher_uid FROM groups WHERE name="{name}"
+            SELECT uid, name, kvantum, level, teacher_uid, location FROM groups WHERE name="{name}"
             '''
         ).fetchall()
         return Group(group_info[0][1], group_info[0][2], group_info[0][3], group_info[0][4])
@@ -88,13 +89,13 @@ class Database:
 
 
 class User:
-    def __init__(self, uid, first_name, last_name, role, birth_date):
+    def __init__(self, uid, first_name, last_name, role, birth_date, location):
         self.uid = uid
         self.first_name = first_name
         self.last_name = last_name
         self.role = role
         self.birth_date = birth_date
-
+        self.location = location
 
 class Group:
     def __init__(self, name, kvantum, level, teacher_uid):
