@@ -86,6 +86,19 @@ for event in longpoll.listen():
                         user_id=event.user_id,
                         message='Возврат',
                         keyboard=keyboard.get_keyboard())
+                elif event.text in kvantums:
+                    user.location = event.text + '_kv'
+                    DB.update_user(user)
+                    groups = DB.cursor.execute(f'SELECT * FROM GROUPS WHERE kvantum = "{event.text}"').fetchall()
+                    groups = [list(i) for i in groups]
+                    keyboard = VkKeyboard(one_time=True)
+                    for i in range(len(groups)):
+                        if i % 3 == 0 or i % 3 == 1:
+                            keyboard.add_button(groups[i][2], color=VkKeyboardColor.PRIMARY)
+                        else:
+                            keyboard.add_button(groups[i][2], color=VkKeyboardColor.PRIMARY)
+                            keyboard.add_line()
+                    keyboard.add_button('Назад', color=VkKeyboardColor.NEGATIVE)
                 else:
                     keyboard = VkKeyboard(one_time=True)
 
@@ -100,3 +113,20 @@ for event in longpoll.listen():
                         user_id=event.user_id,
                         message='Неизвестная команда',
                         keyboard=keyboard.get_keyboard())
+            elif user.location.split('_')[1] == 'kv': #примерно в этом месте у меня пропадает мотивация писать таким образом
+                if event.text == 'Добавить ученика':
+                    pass
+                elif event.text == 'Удалить ученика':
+                    pass
+                elif event.text == 'Изменить название':
+                    pass
+                elif event.text == 'Удалить группу':
+                    pass
+                elif event.text == 'Забанить ученика':
+                    pass
+                else:
+                    group_name = user.location.split('_')[0]
+                    group_id = DB.cursor.execute(f'SELECT uid FROM groups WHERE kvantum = "{group_name}"').fetchall()[0][0]
+                    users_ids = DB.cursor.execute(f'SELECT user_uid FROM relationships WHERE group_uid = {group_id}').fetchall()
+                    users_ids = [i[0] for i in users_ids]
+                    print(users_ids)
